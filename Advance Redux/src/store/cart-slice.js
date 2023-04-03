@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { UIAction } from "./ui-slice";
 
 const cartslice = createSlice({
   name: "cart",
   initialState: {
     items: [],
     totalQunatity: 0,
+    changed: "false",
   },
   reducers: {
     replaceCart(state, action) {
@@ -17,6 +17,7 @@ const cartslice = createSlice({
       const newItem = action.payload;
       const exsitingItem = state.items.find((item) => item.id === newItem.id);
       state.totalQunatity++;
+      state.changed = true;
       if (!exsitingItem) {
         state.items.push({
           id: newItem.id,
@@ -34,6 +35,7 @@ const cartslice = createSlice({
       const id = action.payload;
       const exsitingItem = state.items.find((item) => item.id === id);
       state.totalQunatity--;
+      state.changed = true;
 
       if (exsitingItem === 1) {
         state.items = state.items.filter((item) => item.id !== id);
@@ -44,50 +46,6 @@ const cartslice = createSlice({
     },
   },
 });
-
-export const sendCartData = (cart) => {
-  return async (dispatch) => {
-    dispatch(
-      UIAction.showNotification({
-        status: "success",
-        title: "Success...",
-        message: "sent cart data successfully",
-      })
-    );
-
-    const sendRequest = async () => {
-      const response = await fetch(
-        "https://react-demo-7523d-default-rtdb.firebaseio.com/cart.json",
-        {
-          method: "PUT",
-          body: JSON.stringify(cart),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("sending Cart data failed");
-      }
-    };
-    try {
-      await sendRequest();
-      dispatch(
-        UIAction.showNotification({
-          status: "success",
-          title: "Success...",
-          message: "sent cart data successfully",
-        })
-      );
-    } catch (error) {
-      dispatch(
-        UIAction.showNotification({
-          status: "error",
-          title: "Error!",
-          message: "sending cart data failed.",
-        })
-      );
-    }
-  };
-};
 
 export const cartAction = cartslice.actions;
 
